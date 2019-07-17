@@ -15,6 +15,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 
+//https://www.mcmod.cn/post/298.html
+
 namespace GTOresMayHere {
   /// <summary>
   /// MainWindow.xaml 的交互逻辑
