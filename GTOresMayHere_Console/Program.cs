@@ -11,23 +11,41 @@ namespace GTOresMayHere_Console {
   public class Program {
     public const u64 MCChunkLen = 16;
     public const u64 GTChunkLen = MCChunkLen * 3;
-    public static readonly (u64, u64) SecondArea = (-8, 24);
-    public static readonly (u64, u64) FirstArea = (24, 24);
-    public static readonly (u64, u64) ThridArea = (-8, -8);
-    public static readonly (u64, u64) FourthArea = (24, -8);
+    public static readonly Vector SecondArea = (-8, 24);
+    public static readonly Vector FirstArea = (24, 24);
+    public static readonly Vector ThridArea = (-8, -8);
+    public static readonly Vector FourthArea = (24, -8);
 
 
     static void Main(string[] args) {
 
     }
 
-    static void GetNearest4GTChunk((u64, u64) Current, (u64, u64)[] Chunks) {
+    static void GetNearest4GTChunk(Vector Current, Vector[] Chunks) {
 
     }
 
 
-    
+
     public enum ToDirector : sbyte {
+      /*    
+       *          Z
+       *          ↑
+       *          |
+       *          |
+       * ---------|---------->X
+       *          |
+       *          |
+       *          
+       *          
+       *          ↑
+       *          |
+       *          |
+       * ---------|---------->X
+       *          |
+       *          |
+       *          
+       **/
       Origin = 0x00,//0
       West = 0x01,//1
       East = 0x02,//2
@@ -39,16 +57,18 @@ namespace GTOresMayHere_Console {
       SouthWest = 0x21,//33
     }
 
- 
+
 
   }
 
+
+
   [Serializable]
   public class GTChunkMapNode {
-    public u64 IndexX, IndexZ;
-    public u64 WorldX, WorldZ;
+    public Vector Index;
+    public Vector World;
     public GTChunkMapNode West, East, North, South;
-    public GTChunkMapNode[] Nexts = new GTChunkMapNode[4];
+
 
     public GTChunkMapNode(GTChunkMapNode From, ToDirector Dir) {
       switch (Dir) {
@@ -70,16 +90,11 @@ namespace GTOresMayHere_Console {
           break;
       }
     }
-    public GTChunkMapNode(GTChunkMapNode From, ToDirector FromDir, u64 IndexX, u64 IndexZ) : this(From, FromDir) {
-      var World = (IndexX, IndexZ).GTChunkIndexToMCWorldXZ();
-      WorldX = World.Item1;
-      WorldZ = World.Item2;
+    public GTChunkMapNode(GTChunkMapNode From, ToDirector FromDir, Vector Index) : this(From, FromDir) {
+       World =  Index.GTChunkIndexToMCWorldXZ();
     }
-    public GTChunkMapNode(GTChunkMapNode From, ToDirector Dir, (u64, u64) Index) : this(From, Dir) {
-      var World = Index.GTChunkIndexToMCWorldXZ();
-      WorldX = World.Item1;
-      WorldZ = World.Item2;
-    }
+
+
 
     public void ExpandEachDir() {
       if (West) {
@@ -117,7 +132,11 @@ namespace GTOresMayHere_Console {
       }
     }
 
-    public GTChunkMapNode GetNext(ToDirector NextDir,bool ExpandNull = true) {
+    public void ExpandTo(Vector Point) {
+
+    }
+
+    public GTChunkMapNode GetNext(ToDirector NextDir, bool ExpandNull = true) {
       switch (NextDir) {
         case ToDirector.Origin:
           return this;
@@ -140,24 +159,55 @@ namespace GTOresMayHere_Console {
 
   }
 
+  [Serializable]
+  public class GTChunkMap {
+    List<GTChunkMapNode> Nodes = new List<GTChunkMapNode>();
+    List<Rect> EdgesAnla = new List<Rect>();
+
+
+
+
+  }
+
+  [Serializable]
+  public class Rect {
+    /*
+     *1-----2
+     *|     |
+     *0-----3 
+     */
+    public Vector[] Points = new Vector[4];
+
+    public bool Overlap(Rect Other) {
+      for (int i = 0; i < 4; i++) {
+        if (Inside(Other.Points[i])) return true;
+      }
+      return false;
+    }
+    public bool Inside(Vector Point) {
+      return (Point.X >= Points[0].X && Point.X <= Points[2].X) && (Point.Z >= Points[0].Z && Point.Z <= Points[2].Z);
+    }
+  }
+  [Serializable]
+  public struct Vector {
+    public u64 X, Z;
+    public Vector(u64 _X, u64 _Z) { X = _X; Z = _Z; }
+
+    public static Vector operator +(in Vector L, in Vector R) => new Vector(L.X + R.X, L.Z + R.Z);
+    public static Vector operator -(in Vector L, in Vector R) => new Vector(L.X - R.X, L.Z - R.Z);
+    public static Vector operator *(in Vector L, in u64 R) => new Vector(L.X * R, L.Z * R);
+    public static Vector operator /(in Vector L, in u64 R) => new Vector(L.X / R, L.Z / R);
+
+
+  }
 
 
   public static class Inline {
-    public static int DirectorToArrayIndex(this ToDirector Dir)=>
-    public static (u64, u64) GTChunkIndexTranslateOne(this in (u64, u64) Current, ToDirector FromDir) => (Current.Item1 + ((FromDir & ToDirector.West) > 0 ? -1 : (FromDir & ToDirector.East) > 0 ? 1 : 0), Current.Item2 + ((FromDir & ToDirector.North) > 0 ? -1 : (FromDir & ToDirector.South) > 0 ? 1 : 0));
-    public static (u64, u64) WorldXZToGTChunkIndex(this in (u64, u64) Current) => Current.Subtract(FirstArea).Divide(GTChunkLen);
-    public static (u64, u64) GTChunkIndexToMCWorldXZ(this in (u64, u64) Current) =>;
+    public static Vector GTChunkIndexTranslateOne(this in Vector Current, ToDirector FromDir) =>new Vector (Current.X + ((FromDir & ToDirector.West) > 0 ? -1 : (FromDir & ToDirector.East) > 0 ? 1 : 0), Current.Z + ((FromDir & ToDirector.North) > 0 ? -1 : (FromDir & ToDirector.South) > 0 ? 1 : 0));
+    public static Vector WorldXZToGTChunkIndex(this in Vector Current) => (Current - FirstArea) / (GTChunkLen);
+    public static Vector GTChunkIndexToMCWorldXZ(this in Vector Current) => Current * GTChunkLen + FirstArea;
 
-    public static (u64, u64) Subtract(this (u64, u64) L, (u64, u64) R) => (L.Item1 - R.Item1, L.Item2 - R.Item2);
-    public static (u64, u64) Subtract(this (u64, u64) L, u64 R) => (L.Item1 - R, L.Item2 - R);
-    public static (u64, u64) Add(this (u64, u64) L, (u64, u64) R) => (L.Item1 + R.Item1, L.Item2 + R.Item2);
-    public static (u64, u64) Add(this (u64, u64) L, u64 R) => (L.Item1 + R, L.Item2 + R);
 
-    public static (u64, u64) Divide(this (u64, u64) L, (u64, u64) R) => (L.Item1 / R.Item1, L.Item2 / R.Item2);
-    public static (u64, u64) Divide(this (u64, u64) L, u64 R) => (L.Item1 / R, L.Item2 / R);
-
-    public static (u64, u64) Multiply(this (u64, u64) L, (u64, u64) R) => (L.Item1 * R.Item1, L.Item2 * R.Item2);
-    public static (u64, u64) Multiply(this (u64, u64) L, u64 R) => (L.Item1 * R, L.Item2 * R);
 
 
     public static bool NullIsFalse<T>(this T Object) where T : class => Object == null;
