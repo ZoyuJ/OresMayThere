@@ -20,7 +20,7 @@ namespace GTOresMayHere_Console {
     public static Vector CurrentGTIndex, CurrentWorldIndex, InitGTIndex, InitWorldIndex;
     public static TemperaStorage Storage;
 
-    public static int AutoFlushFileCount = 15,CurrentAutoFlushCount=0;
+    public static int AutoFlushFileCount = 15, CurrentAutoFlushCount = 0;
 
     static void Main(string[] args) {
       Storage = new TemperaStorage();
@@ -28,6 +28,31 @@ namespace GTOresMayHere_Console {
       Console.CancelKeyPress += (sender, _args) => {
         Storage.FlushToFile();
       };
+
+      Console.WriteLine($"/////////////////原型机///////////////////");
+      Console.WriteLine($"//////////////////////////////////////////");
+      Console.WriteLine($"");
+      Console.WriteLine($"关闭应用前输入Ctrl+C以保存内容");
+      Console.WriteLine($"");
+      Console.WriteLine($"//////////////////////////////////////////");
+      Console.WriteLine($"向东：{Settings.This.InputEast}");
+      Console.WriteLine($"向西：{Settings.This.InputWest}");
+      Console.WriteLine($"向南：{Settings.This.InputSouth}");
+      Console.WriteLine($"向北：{Settings.This.InputNorth}");
+      Console.WriteLine($"//////////////////////////////////////////");
+      Console.WriteLine($"{Storage.LocalPoints?.Count} 已从本地导入");
+      Console.WriteLine($"//////////////////////////////////////////");
+
+
+      Console.WriteLine("输入当前坐标: like : -5110 -256");
+      var InpCurrentWorld = Console.ReadLine().Trim();
+      string[] WorldINDEXsTR = InpCurrentWorld.Split(' ');
+      CurrentWorldIndex = InitWorldIndex = new Vector(u64.Parse(WorldINDEXsTR[0]), u64.Parse(WorldINDEXsTR[1]));
+      CurrentGTIndex = InitGTIndex = InitWorldIndex.WorldXZToGTChunkIndex();
+
+      Console.WriteLine($"从{CurrentWorldIndex} @{CurrentGTIndex} 开始：↓↓↓↓");
+
+
       while (true) {
         var Inp = Console.ReadKey();
         if (Inp.Key == ConsoleKey.M) {
@@ -82,6 +107,8 @@ namespace GTOresMayHere_Console {
           }
         }
       }
+
+
 
       void DisplayMarks() {
         int Index = 0;
@@ -249,7 +276,7 @@ namespace GTOresMayHere_Console {
     }
 
     public void AddNewPoints((string, Vector) Point) {
-      NewPoints.Add(Point);
+      LocalPoints.Add(Point);
     }
 
     public void AppendToFile() {
@@ -496,7 +523,7 @@ namespace GTOresMayHere_Console {
     }
 
     public static void Sort<T>(this List<T> This, Func<T, T, u64> Compare) {
-      T Temp = default(T);
+      T Temp = default;
       for (int i = 0; i < This.Count - 1; i++) {
         for (int j = 0; j < This.Count - 1 - i; j++) {
           if (Compare(This[j], This[j + 1]) < 0) {
