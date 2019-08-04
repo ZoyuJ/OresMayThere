@@ -17,22 +17,28 @@ namespace GTOresMayHere_Console {
     public static readonly Vector ThridArea = new Vector(-8, -8);
     public static readonly Vector FourthArea = new Vector(24, -8);
 
-    public static Vector CurrentGTIndex, CurrentWorldIndex, InitGTIndex, InitWorldIndex;
+    public static readonly Vector ChunkSize = new Vector(MCChunkLen, MCChunkLen);
+
+    public static Vector CurrentGTIndex, InitGTIndex, InitWorldIndex;
+    public static Vector CurrentWorldIndex { get { return CurrentGTIndex.GTChunkIndexToMCWorldXZ(); } }
     public static TemperaStorage Storage;
 
     public static int AutoFlushFileCount = 15, CurrentAutoFlushCount = 0;
 
     static void Main(string[] args) {
+      _ = new Settings();
       Storage = new TemperaStorage();
-      Storage.LoadFromFile();
-      Console.CancelKeyPress += (sender, _args) => {
-        Storage.FlushToFile();
-      };
+      try {
+        Storage.LoadFromFile();
+      }
+      catch (Exception) {
+        Console.WriteLine("未加载之前的信息");
+      }
+
 
       Console.WriteLine($"/////////////////原型机///////////////////");
       Console.WriteLine($"//////////////////////////////////////////");
       Console.WriteLine($"");
-      Console.WriteLine($"关闭应用前输入Ctrl+C以保存内容");
       Console.WriteLine($"");
       Console.WriteLine($"//////////////////////////////////////////");
       Console.WriteLine($"向东：{Settings.This.InputEast}");
@@ -47,11 +53,62 @@ namespace GTOresMayHere_Console {
       Console.WriteLine("输入当前坐标: like : -5110 -256");
       var InpCurrentWorld = Console.ReadLine().Trim();
       string[] WorldINDEXsTR = InpCurrentWorld.Split(' ');
-      CurrentWorldIndex = InitWorldIndex = new Vector(u64.Parse(WorldINDEXsTR[0]), u64.Parse(WorldINDEXsTR[1]));
+      InitWorldIndex = new Vector(u64.Parse(WorldINDEXsTR[0]), u64.Parse(WorldINDEXsTR[1]));
       CurrentGTIndex = InitGTIndex = InitWorldIndex.WorldXZToGTChunkIndex();
 
       Console.WriteLine($"从{CurrentWorldIndex} @{CurrentGTIndex} 开始：↓↓↓↓");
 
+
+
+      while (true) {
+        Console.WriteLine("输入方向： 或 L键 显示已保存列表");
+        var InputKey = Console.ReadKey();
+        try {
+
+          if (InputKey.Key == ConsoleKey.L) {
+            DisplayList();
+            continue;
+          }
+
+          var Dir = Settings.This.InputToWorldDir(InputKey.Key);
+          Console.WriteLine($"\n{Enum.GetName(typeof(WorldDir), Dir)}");
+          CurrentGTIndex = CurrentGTIndex.GTChunkIndexTranslateOne(Dir);
+          if (Storage.AlreadyDetected(CurrentGTIndex, out (string, Vector) Detail)) {
+            Console.WriteLine($"已探查区块：\n\t{Detail.Item1} @{Detail.Item2}");
+          }
+          else {
+            var WI = CurrentWorldIndex;
+            Console.WriteLine($"For LV采矿机 \n\t{WI + (Vector.NW * ChunkSize)},{WI + (Vector.N * ChunkSize)},{WI + (Vector.NE * ChunkSize)}\n\t{WI + (Vector.W * ChunkSize)},{WI},{WI + (Vector.E * ChunkSize)}\n\t{WI + (Vector.SW * ChunkSize)},{WI + (Vector.S * ChunkSize)},{WI + (Vector.SE * ChunkSize)}");
+            Console.WriteLine($"新区块@{CurrentGTIndex}：输入区块信息,Enter 跳过(填充NONE)");
+            var IndexInfo = Console.ReadLine().Trim();
+            if (string.IsNullOrEmpty(IndexInfo)) IndexInfo = "NONE";
+            Storage.AddNewPoints((IndexInfo, CurrentGTIndex));
+            Storage.FlushToFile();
+          }
+        }
+        catch (Exception) {
+          Console.WriteLine($"Dont' know Key:{Enum.GetName(typeof(ConsoleKey), InputKey.Key)}");
+        }
+      }
+
+      void DisplayList() {
+        int LastIndex = 0;
+        int Perpage = 10;
+        do {
+          Console.WriteLine($"当前页至：{LastIndex+Perpage}/{Storage.LocalPoints.Count}");
+          Console.WriteLine($"|{"Index".Padding(5)}|{"GT Index".Padding(12)}|{"World Index".Padding(16)}| Info...");
+          int i = LastIndex;
+          for (; i < LastIndex+Perpage && i<Storage.LocalPoints.Count; i++) {
+            Console.WriteLine($"{i.ToString().Padding(5)}|{Storage.LocalPoints[i].Item2.ToString().Padding(12)}|{Storage.LocalPoints[i].Item2.GTChunkIndexToMCWorldXZ().ToString().Padding(16)}|{Storage.LocalPoints[i].Item1}");
+          }
+          LastIndex = i;
+          Console.WriteLine("输入 E 退出|输入 N 显示下一页");
+          var InputKey = Console.ReadKey();
+          if (InputKey.Key == ConsoleKey.E) return;
+          else if (InputKey.Key == ConsoleKey.N) continue;
+        } while (true);
+
+      }
 
       while (true) {
         var Inp = Console.ReadKey();
@@ -195,7 +252,7 @@ namespace GTOresMayHere_Console {
 
   public partial class Settings {
 
-    public static Settings This = new Settings();
+    public static Settings This;
 
     public ConsoleKey InputEast = ConsoleKey.D, InputWest = ConsoleKey.A, InputNorth = ConsoleKey.W, InputSouth = ConsoleKey.S;
     public WorldDir InputToWorldDir(ConsoleKey Key) {
@@ -242,11 +299,15 @@ namespace GTOresMayHere_Console {
     public static readonly char[] TrimChars = new char[] { '\n', '\r', ' ' };
 
     public Settings() {
+      This = this;
       PointsFileLoadDirectoryPath = System.Environment.CurrentDirectory;
       PointsFileLoadFileName = "OrePoints.txt";
-      if (File.Exists(LocalPointMarksFilePath)) {
-        OrePointMarks = new List<string>(LocalPointMarksFilePath.FileReadLine().Select(E => E.Trim(TrimChars)));
+      try {
+        if (File.Exists(LocalPointMarksFilePath)) {
+          OrePointMarks = new List<string>(LocalPointMarksFilePath.FileReadLine().Select(E => E.Trim(TrimChars)));
+        }
       }
+      catch { }
     }
 
     public void CheckPointsFile() {
@@ -280,14 +341,14 @@ namespace GTOresMayHere_Console {
     }
 
     public void AppendToFile() {
-      Settings.This.LocalPointsFilePath.AppendToFile(new List<string>(LocalPoints.Select(E => E.EToString())));
+      Settings.This.LocalPointsFilePath.FlushToFile(new List<string>(LocalPoints.Select(E => E.EToString())));
     }
     public void FlushToFile() {
-      if (File.Exists(Settings.This.LocalPointsFilePath)) {
-        FileInfo FI = new FileInfo(Settings.This.LocalPointsFilePath);
-        FI.MoveTo(Path.Combine(Path.GetDirectoryName(Settings.This.LocalPointsFilePath), $"backup {DateTime.Now.ToFileTime()}.txt"));
-      }
-      Settings.This.LocalPointsFilePath.AppendToFile(new List<string>(LocalPoints.Select(E => E.EToString())));
+      //if (File.Exists(Settings.This.LocalPointsFilePath)) {
+      //  FileInfo FI = new FileInfo(Settings.This.LocalPointsFilePath);
+      //  FI.MoveTo(Path.Combine(Path.GetDirectoryName(Settings.This.LocalPointsFilePath), $"backup {DateTime.Now.ToFileTime()}.txt"));
+      //}
+      Settings.This.LocalPointsFilePath.FlushToFile(new List<string>(LocalPoints.Select(E => E.EToString())));
     }
 
     public void FlushToFileAsync() {
@@ -472,10 +533,42 @@ namespace GTOresMayHere_Console {
 
     public override string ToString() => $"({X},{Z})";
 
+    /*    
+    *           Z+
+    *           ↑
+    *           |
+    *           |
+    * X- -------|---------->X+
+    *           |
+    *           |
+    *           Z-
+    *          
+    *           S
+    *           ↑
+    *           |
+    *           |
+    * W---------|---------->E
+    *           |
+    *           |
+    *           N
+    *          
+    **/
+    public static Vector O { get => new Vector(0, 0); }
+    public static Vector W { get => new Vector(-1, 0); }
+    public static Vector E { get => new Vector(1, 0); }
+    public static Vector S { get => new Vector(0, 1); }
+    public static Vector N { get => new Vector(0, -1); }
+    public static Vector SW { get => new Vector(-1, 1); }
+    public static Vector NW { get => new Vector(-1, -1); }
+    public static Vector SE { get => new Vector(1, 1); }
+    public static Vector NE { get => new Vector(1, -1); }
+
     public static Vector operator +(in Vector L, in Vector R) => new Vector(L.X + R.X, L.Z + R.Z);
     public static Vector operator -(in Vector L, in Vector R) => new Vector(L.X - R.X, L.Z - R.Z);
     public static Vector operator *(in Vector L, in u64 R) => new Vector(L.X * R, L.Z * R);
+    public static Vector operator *(in Vector L, in Vector R) => new Vector(L.X * R.X, L.Z * R.Z);
     public static Vector operator /(in Vector L, in u64 R) => new Vector(L.X / R, L.Z / R);
+    public static Vector operator /(in Vector L, in Vector R) => new Vector(L.X / R.X, L.Z / R.Z);
 
     public static bool operator ==(in Vector L, in Vector R) => L.X == R.X && L.Z == R.Z;
     public static bool operator !=(in Vector L, in Vector R) => L.X != R.X || L.Z != R.Z;
@@ -513,13 +606,30 @@ namespace GTOresMayHere_Console {
       FS.Flush();
       FS.Close();
     }
+    public static void FlushToFile(this string FilePath, List<string> Data) {
+      if (File.Exists(FilePath)) File.Delete(FilePath);
+      try {
+        FileStream FS = new FileStream(FilePath, FileMode.CreateNew, FileAccess.Write);
+        Data.ForEach(E => {
+          byte[] Btys = Encoding.UTF8.GetBytes(E);
+          FS.Write(Btys, 0, Btys.Length);
+          FS.Write(NEXTLINE, 0, NEXTLINE.Length);
+        });
+        FS.Flush();
+        FS.Close();
+      }
+      catch (Exception) {
 
+        throw;
+      }
+    }
     public static IEnumerable<string> FileReadLine(this string Path) {
       StreamReader sr = new StreamReader(Path);
       string line = null;
       while ((line = sr.ReadLine()) != null) {
         yield return line;
       }
+      sr.Close();
     }
 
     public static void Sort<T>(this List<T> This, Func<T, T, u64> Compare) {
@@ -537,7 +647,30 @@ namespace GTOresMayHere_Console {
 
     public static bool NullIsFalse<T>(this T Object) where T : class => Object == null;
 
-
+    public static string PaddingLeft(this string This, int MaxLength) {
+      var chars = new char[MaxLength];
+      for (int i = chars.Length - 1; i >= 0; i--) {
+        int Index = This.Length - chars.Length - i;
+        chars[i] = Index >= 0 ? This[Index] : ' ';
+      }
+      return new string(chars);
+    }
+    public static string PaddingRight(this string This, int MaxLength) {
+      var chars = new char[MaxLength];
+      for (int i = 0; i < chars.Length; i++) {
+        chars[i] = i < This.Length ? This[i] : ' ';
+      }
+      return new string(chars);
+    }
+    public static string Padding(this string This, int MaxLength) {
+      var chars = new char[MaxLength];
+      int offset = MaxLength - This.Length / 2;
+      for (int i = 0; i < chars.Length; i++) {
+        int Index = i - offset < This.Length ? i - offset : -1;
+        chars[i] = Index > 0 ? This[Index] : ' ';
+      }
+      return new string(chars);
+    }
     public static bool RemoveSelectLastOne<T>(this IList<T> This, Predicate<T> Match) {
       for (int i = This.Count - 1; i >= 0; i--) {
         if (Match(This[i])) { This.RemoveAt(i); return true; }
