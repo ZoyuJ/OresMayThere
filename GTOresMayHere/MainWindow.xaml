@@ -5,47 +5,122 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GTOresMayHere"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow"
+        Height="30"
+        Width="500"
+        ClipToBounds="False"
+        BorderThickness="0"
+        WindowStyle="None"
+        WindowStartupLocation="Manual"
+        SnapsToDevicePixels="True"
+        ResizeMode="NoResize">
   <Window.Resources>
-    <local:ValueCorrectToBrush x:Key="ValueCorrectToBrush"/>
+    <local:ValueCorrectToBrush x:Key="ValueCorrectToBrush" />
   </Window.Resources>
-  <Grid x:Name="Root">
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition/>
-      <ColumnDefinition/>
-      <ColumnDefinition/>
-    </Grid.ColumnDefinitions>
-    <Grid.RowDefinitions>
-      <RowDefinition/>
-      <RowDefinition/>
-      <RowDefinition/>
-    </Grid.RowDefinitions>
 
-    <Grid Grid.Column="1" Grid.Row="1">
-      <Grid.RowDefinitions>
-        <RowDefinition/>
-        <RowDefinition/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-      </Grid.ColumnDefinitions>
+  <Grid x:Name="LayerRoot">
+    <Border x:Name="ResizeBorderx"
+            Background="Black"
+            Padding="0,0,0,0">
+      <Grid x:Name="RootGrid"
+            Background="Transparent">
+        <Border Background="Transparent"
+                VerticalAlignment="Stretch"
+                Margin="0,0,0,0"
+                BorderThickness="0">
+          <DockPanel LastChildFill="True"
+                     Background="Transparent">
+            <StackPanel Orientation="Horizontal"
+                        Margin="10,0,10,0"
+                        DockPanel.Dock="Right"
+                        Background="Transparent">
 
-      <TextBlock Text="坐标X:" Grid.Row="0" Grid.Column="0" FontSize="30" VerticalAlignment="Center"  TextAlignment="Right" HorizontalAlignment="Right"/>
-      <TextBox x:Name="InputX" Text="{Binding XValue, Mode=TwoWay}" 
-               FontSize="30" Margin="5,0,0,0" BorderThickness="0,0,0,5" BorderBrush="{Binding Path=XValue, Converter={StaticResource ValueCorrectToBrush}}"
-                 Grid.Row="0" Grid.Column="1"
-                 TextAlignment="Left" 
-                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-                 VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
-      <TextBlock Text="坐标Y:" Grid.Row="1" Grid.Column="0" FontSize="30" VerticalAlignment="Center"  TextAlignment="Right" HorizontalAlignment="Right"/>
-      <TextBox x:Name="InputY" Text="{Binding YValue, Mode=TwoWay}" 
-               FontSize="30" Margin="5,0,0,0" BorderThickness="0,0,0,5" BorderBrush="{Binding Path=YValue, Converter={StaticResource ValueCorrectToBrush}}"
-                 Grid.Row="1" Grid.Column="1"
-                 TextAlignment="Left" 
-                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-                 VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
-    </Grid>
-
+              <Button x:Name="ChangeDirWindowButton"
+                      Background="Wheat"
+                      Click="ChangeDirWindowButton_Click"
+                      Margin="0,0,5,0">
+                <Path Width="20"
+                      Height="20"
+                      Margin="2.5,2"
+                      Fill="Red"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Center"
+                      Stroke="Red"
+                      StrokeThickness="1"
+                      Data="M0,0 L0,20 L20,10 Z">
+                </Path>
+              </Button>
+              <Button x:Name="MapWindowButton"
+                      Background="White"
+                      Click="MapOriginWindowButton_Click"
+                      Margin="0,0,5,0">
+                <Image Source="{StaticResource MapIcon}"
+                       Stretch="UniformToFill" />
+              </Button>
+              <Button x:Name="ShareWindowButton"
+                      Background="White"
+                      Click="SettingWindowButton_Click"
+                      Margin="0,0,5,0">
+                <Image Source="{StaticResource ShardIcon}"
+                       Stretch="UniformToFill" />
+              </Button>
+              <!--<Button x:Name="SettingWindowButton"
+                      Background="White"
+                      Click="SettingWindowButton_Click"
+                      Margin="0,0,5,0">
+                <Image Source="{StaticResource SettingIcon}"
+                       Stretch="UniformToFill" />
+              </Button>-->
+              <Button x:Name="CloseWindowButton"
+                      Background="Red"
+                      Click="CloseWindowButton_Click">
+                <Grid Width="25"
+                      Height="25">
+                  <Path Width="10"
+                        Height="10"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}, Mode=FindAncestor}}"
+                        StrokeThickness="1">
+                    <Path.Data>
+                      <GeometryGroup>
+                        <PathGeometry Figures="M0,0 L10,10" />
+                        <PathGeometry Figures="M10,0 L0,10" />
+                      </GeometryGroup>
+                    </Path.Data>
+                  </Path>
+                </Grid>
+              </Button>
+            </StackPanel>
+            <Grid DockPanel.Dock="Left"
+                  Background="Transparent"
+                  MouseMove="Grid_MouseMove"
+                  TouchMove="Grid_TouchMove"
+                  MouseLeftButtonDown="Grid_MouseLeftButtonDown"
+                  MouseLeftButtonUp="Grid_MouseLeftButtonUp"
+                  TouchDown="Grid_TouchDown"
+                  TouchUp="Grid_TouchUp">
+              <TextBlock x:Name="WorldPosOutput"
+                         Foreground="White"
+                         Background="Transparent"
+                         FontSize="25"
+                         Text="Possda133"
+                         Margin="16,0"
+                         VerticalAlignment="Stretch" />
+              <TextBox x:Name="WorldPosInput"
+                       Visibility="Hidden"
+                       Foreground="White"
+                       Background="Transparent"
+                       FontSize="25"
+                       Margin="8,0"
+                       VerticalAlignment="Stretch"
+                       TextAlignment="Left"
+                       Text="Input"
+                       TextWrapping="Wrap"></TextBox>
+            </Grid>
+          </DockPanel>
+        </Border>
+      </Grid>
+    </Border>
   </Grid>
 </Window>

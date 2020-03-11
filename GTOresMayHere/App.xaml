@@ -3,7 +3,61 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:GTOresMayHere"
              StartupUri="MainWindow.xaml">
-    <Application.Resources>
-         
-    </Application.Resources>
+  <Application.Resources>
+    <BitmapImage x:Key="ListIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_16cf_list.png" />
+    <BitmapImage x:Key="MapIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_16cf_map.png" />
+    <BitmapImage x:Key="PathIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_19ad_progress.png" />
+    <BitmapImage x:Key="SettingIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_33_interior_engineering.png" />
+    <BitmapImage x:Key="TaskIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_43_logistics_list.png" />
+    <BitmapImage x:Key="ShardIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_43_logistics_transfer.png" />
+    <Path x:Key="DirectionIsZPosVectors"
+          Width="20"
+          Fill="Red"
+          Height="20"
+          Margin="2.5,2"
+          VerticalAlignment="Center"
+          HorizontalAlignment="Center"
+          Stroke="Red"
+          StrokeThickness="1"
+          Data="M10,0 L0,20 L20,20 Z">
+    </Path>
+    <Path x:Key="DirectionIsZNegVectors"
+          Width="20"
+          Height="20"
+          Margin="2.5,2"
+          Fill="Red"
+          VerticalAlignment="Center"
+          HorizontalAlignment="Center"
+          Stroke="Red"
+          StrokeThickness="1"
+          Data="M10,20 L0,0 L20,0 Z">
+    </Path>
+    <Path x:Key="DirectionIsXNegVectors" Width="20"
+          Height="20"
+          Margin="2.5,2"
+          Fill="Red"
+          VerticalAlignment="Center"
+          HorizontalAlignment="Center"
+          Stroke="Red"
+          StrokeThickness="1"
+          Data="M0,10 L20,0 L20,20 Z">
+    </Path>
+    <Path x:Key="DirectionIsXPosVectors"
+          Width="20"
+          Height="20"
+          Margin="2.5,2"
+          Fill="Red"
+          VerticalAlignment="Center"
+          HorizontalAlignment="Center"
+          Stroke="Red"
+          StrokeThickness="1"
+          Data="M0,0 L0,20 L20,10 Z">
+    </Path>
+  </Application.Resources>
 </Application>

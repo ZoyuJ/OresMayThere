@@ -55,6 +55,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AllPoints.xaml.cs">
+      <DependentUpon>AllPoints.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WorldInfo.cs" />
+    <Compile Include="ShareTo.xaml.cs">
+      <DependentUpon>ShareTo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Config.cs" />
+    <Page Include="AllPoints.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -67,6 +79,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ShareTo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -93,6 +109,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Tilda_Icons_16cf_list.png" />
+    <Resource Include="Resources\Tilda_Icons_16cf_map.png" />
+    <Resource Include="Resources\Tilda_Icons_19ad_progress.png" />
+    <Resource Include="Resources\Tilda_Icons_33_interior_engineering.png" />
+    <Resource Include="Resources\Tilda_Icons_43_logistics_list.png" />
+    <Resource Include="Resources\Tilda_Icons_43_logistics_transfer.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
