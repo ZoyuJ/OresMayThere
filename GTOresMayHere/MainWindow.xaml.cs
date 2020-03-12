@@ -15,6 +15,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using static GTOresMayHere.UserConfig;
+using NHotkey.Wpf;
+using NHotkey;
+using System.Diagnostics;
 
 //https://www.mcmod.cn/post/298.html
 
@@ -32,19 +35,94 @@ namespace GTOresMayHere {
           else { }
         };
       };
+
+      Dictionary<string, string> _CLAConfigs = new Dictionary<string, string>();
+      var CLA = Environment.GetCommandLineArgs();
+      for (int i = 1; i < CLA.Length; i++) {
+        _CLAConfigs[CLA[i]] = CLA[++i];
+      }
+      FillMappedAxeToDirection(_CLAConfigs);
+      FillShortcutsForNextPoint(_CLAConfigs);
+      if (NextPointKey != Key.None) {
+        NextPointEvent += NextPoint;
+        HotkeyManager.Current.AddOrReplace("GTONextPoint", NextPointKey, NextPointKeyFrontKey1 | NextPointKeyFrontKey2, NextPointEvent);
+      }
+      FillPointsSaveToPath(_CLAConfigs);
+
+
     }
 
 
 
 
+    private void NextPoint() {
+      if (CurrentGTIndex == null) { WorldPosOutput.Text = "设置起始坐标"; return; }
+      CurrentGTIndex = CurrentGTIndex.Value.GTChunkIndexTranslateOne(CurrentDirection);
+      var IsDetected = !UserConfig.IsPointDetected(CurrentGTIndex.Value, out var Detail) ;
+      DisplayIndexMessage(Detail);
+      if (IsDetected) { }
+      else UserConfig.PointDetected(Detail);
+    }
+
+    private void DisplayIndexMessage(in IndexDetail Detail) {
+      WorldPosOutput.Text = Detail.Index.GTChunkIndexToMCWorldXZ().ToString();
+      WorldPosOutput.Foreground = Detail.Detected ? UIConfig.DetectedPointColorBrush : UIConfig.UndetectedPointColorBrush;
+    }
+
+    public EventHandler<HotkeyEventArgs> NextPointEvent;
+    private void NextPoint(object sender, HotkeyEventArgs Args) {
+      if (Args.Name == "GTONextPoint") { NextPoint(); Args.Handled = true; }
+    }
+
     #region TitleReact
-    bool IsCheckOutMapOrigin = false;
+
+    private void SaveWindowButton_Click(object sender,RoutedEventArgs e) {
+
+    }
+
+    private void ChangeDirWindowButton_Click(object sender, RoutedEventArgs e) {
+      switch (CurrentDirection) {
+        case ToDirector.Origin:
+          CurrentDirection = ToDirector.ZPos;
+          ChangeDirWindowButton.Content = Application.Current.Resources["DirectionIsZPosVectors"];
+          break;
+        case ToDirector.XNeg:
+          CurrentDirection = ToDirector.Origin;
+          ChangeDirWindowButton.Content = Application.Current.Resources["DirectionIsOriginVectors"];
+          break;
+        case ToDirector.XPos:
+          CurrentDirection = ToDirector.ZNeg;
+          ChangeDirWindowButton.Content = Application.Current.Resources["DirectionIsZNegVectors"];
+          break;
+        case ToDirector.ZNeg:
+          CurrentDirection = ToDirector.XNeg;
+          ChangeDirWindowButton.Content = Application.Current.Resources["DirectionIsXNegVectors"];
+          break;
+        case ToDirector.ZPos:
+          CurrentDirection = ToDirector.XPos;
+          ChangeDirWindowButton.Content = Application.Current.Resources["DirectionIsXPosVectors"];
+          break;
+        case ToDirector.XPosAndZNeg:
+          break;
+        case ToDirector.XNegAndZNeg:
+          break;
+        case ToDirector.XPosAndZPos:
+          break;
+        case ToDirector.xNegAndZPos:
+          break;
+        default:
+          break;
+      }
+
+    }
+
+    bool IsNeedToCheckOutMapOrigin = false;
     private void MapOriginWindowButton_Click(object sender, RoutedEventArgs e) {
-      if (IsCheckOutMapOrigin) {
+      if (!IsNeedToCheckOutMapOrigin) {
         WorldPosInput.Visibility = Visibility.Visible;
         WorldPosOutput.Visibility = Visibility.Hidden;
         WorldPosInput.Text = "输入当前坐标";
-        IsCheckOutMapOrigin = false;
+        IsNeedToCheckOutMapOrigin = true;
       }
       else {
         string[] PosStringArray = WorldPosInput.Text.Trim().Split(' ');
@@ -54,11 +132,12 @@ namespace GTOresMayHere {
         try {
           InitWorldIndex = new Vector(Convert.ToInt64(PosStringArray[0]), Convert.ToInt64(PosStringArray[1]));
           CurrentGTIndex = InitGTIndex = InitWorldIndex.WorldXZToGTChunkIndex();
-          IsCheckOutMapOrigin = true;
+          IsNeedToCheckOutMapOrigin = true;
           WorldPosInput.Visibility = Visibility.Hidden;
           WorldPosOutput.Visibility = Visibility.Visible;
         }
         catch (Exception) {
+
           WorldPosOutput.Text = "无效坐标"; return;
         }
 

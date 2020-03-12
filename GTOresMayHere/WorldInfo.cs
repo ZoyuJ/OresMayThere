@@ -19,7 +19,7 @@ namespace GTOresMayHere {
     }
 
     public override string ToString() => $"({X},{Z})";
-
+    public string ToShortestString() => $"{X},{Z}";
     /*    
     *           Z+
     *           ↑
@@ -63,6 +63,25 @@ namespace GTOresMayHere {
     public u64 XAndZDistanceTotal(Vector R) => Math.Abs(R.X - X) + Math.Abs(R.Z - Z);
 
   }
+
+  [Serializable]
+  public struct IndexDetail {
+    public Vector Index { get; set; }
+    public int OreType { get; set; }
+
+    public bool Detected { get; set; }
+
+    public static IndexDetail None = new IndexDetail() { Index = new Vector(), OreType = 0, Detected = false };
+    public static IndexDetail UndetectedPoint(in Vector Index) => new IndexDetail() { Index = Index, OreType = 0, Detected = false };
+    public static IndexDetail FromFileNameParts(string[] Parts,bool Detected= true) {
+      var New = new IndexDetail();
+      New.Index = new Vector(Convert.ToInt64(Parts[0]), Convert.ToInt64(Parts[1]));
+      New.OreType = Convert.ToInt32(Parts[2]);
+      New.Detected = Detected;
+      return New;
+    }
+  }
+
   public static class WorldInfo {
     public const u64 MCChunkLen = 16;
     public const u64 GTChunkLen = MCChunkLen * 3;
@@ -73,15 +92,10 @@ namespace GTOresMayHere {
 
     public static readonly Vector ChunkSize = new Vector(MCChunkLen, MCChunkLen);
 
-    public static void InputToWorldDirect(ConsoleKey Key,out ToDirector Direct) {
-
-    }
-
 
 
 
   }
-
 
   public enum ToDirector : sbyte {
     /*    
@@ -121,6 +135,7 @@ namespace GTOresMayHere {
     E = 2,
     S = 3,
     N = 4,
+    Undefined = -1,
   }
   public static class Inline {
     public static string EToString(this in (string, Vector) This) => $"{This.Item1} {This.Item2.X} {This.Item2.Z}";

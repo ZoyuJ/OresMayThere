@@ -13,7 +13,8 @@
         WindowStyle="None"
         WindowStartupLocation="Manual"
         SnapsToDevicePixels="True"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        VerticalAlignment="Top">
   <Window.Resources>
     <local:ValueCorrectToBrush x:Key="ValueCorrectToBrush" />
   </Window.Resources>
@@ -25,7 +26,8 @@
       <Grid x:Name="RootGrid"
             Background="Transparent">
         <Border Background="Transparent"
-                VerticalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Height="30"
                 Margin="0,0,0,0"
                 BorderThickness="0">
           <DockPanel LastChildFill="True"
@@ -34,45 +36,32 @@
                         Margin="10,0,10,0"
                         DockPanel.Dock="Right"
                         Background="Transparent">
-
               <Button x:Name="ChangeDirWindowButton"
                       Background="Wheat"
+                      Width="30" Height="30"
                       Click="ChangeDirWindowButton_Click"
-                      Margin="0,0,5,0">
-                <Path Width="20"
-                      Height="20"
-                      Margin="2.5,2"
-                      Fill="Red"
-                      VerticalAlignment="Center"
-                      HorizontalAlignment="Center"
-                      Stroke="Red"
-                      StrokeThickness="1"
-                      Data="M0,0 L0,20 L20,10 Z">
-                </Path>
+                      ToolTip="切换方向"
+                      Margin="0,0,5,0" Content="{StaticResource DirectionIsOriginVectors}">
               </Button>
               <Button x:Name="MapWindowButton"
                       Background="White"
                       Click="MapOriginWindowButton_Click"
+                      ToolTip="新起点"
                       Margin="0,0,5,0">
                 <Image Source="{StaticResource MapIcon}"
                        Stretch="UniformToFill" />
               </Button>
               <Button x:Name="ShareWindowButton"
                       Background="White"
-                      Click="SettingWindowButton_Click"
+                      ToolTip="保存当前点"
+                      Click="SaveWindowButton_Click"
                       Margin="0,0,5,0">
                 <Image Source="{StaticResource ShardIcon}"
                        Stretch="UniformToFill" />
               </Button>
-              <!--<Button x:Name="SettingWindowButton"
-                      Background="White"
-                      Click="SettingWindowButton_Click"
-                      Margin="0,0,5,0">
-                <Image Source="{StaticResource SettingIcon}"
-                       Stretch="UniformToFill" />
-              </Button>-->
               <Button x:Name="CloseWindowButton"
                       Background="Red"
+                      ToolTip="关闭"
                       Click="CloseWindowButton_Click">
                 <Grid Width="25"
                       Height="25">
