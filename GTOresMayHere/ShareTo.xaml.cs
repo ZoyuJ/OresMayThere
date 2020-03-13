@@ -56,7 +56,7 @@ namespace GTOresMayHere {
         CurrentLocalDetail = Detail;
         WorldPosInput.Visibility = Visibility.Hidden;
         WorldPosOutput.Visibility = Visibility.Visible;
-        WorldPosOutput.Text = $"{Detail.Index.ToString()} is {Detail.OreType}";
+        WorldPosOutput.Text = $"{Detail.Index.GTChunkIndexToMCWorldXZ().ToString()} is {Detail.OreType}";
       }
 
     }
