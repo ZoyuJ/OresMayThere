@@ -28,9 +28,10 @@ namespace GTOresMayHere {
             string lpWindowName
            );
 
-    [DllImport("user32.dll", EntryPoint = "FindWindow")]
+    [DllImport("user32.dll", EntryPoint = "FindWindowEx")]
     private static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
 
+    public static IntPtr FindWindowHandle(IntPtr ParentWindow, IntPtr ChildWindowAfter, string WindowClass, string WindowTitle) { return FindWindowEx(ParentWindow, ChildWindowAfter, WindowClass, WindowTitle); }
 
     public static RECT GetWindowRect(IntPtr hWnd) {
       RECT _RECT = new RECT();

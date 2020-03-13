@@ -11,7 +11,9 @@
         WindowStyle="None"
         SnapsToDevicePixels="True"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Topmost="True"
+        VerticalAlignment="Top">
   <Grid>
     <Grid x:Name="LayerRoot">
       <Border x:Name="ResizeBorderx"
@@ -29,18 +31,28 @@
                           Margin="10,0,10,0"
                           DockPanel.Dock="Right"
                           Background="Transparent">
-                <!--<Button x:Name="ListWindowButton"
-                      Background="White"
-                      Click="ListWindowButton_Click"
-                      Margin="0,0,5,0">
-                <Image Source="{StaticResource ListIcon}"
-                       Stretch="UniformToFill" />
-              </Button>-->
+                <Button x:Name="ImportWindowButton"
+                        Background="White"
+                        ToolTip="从剪贴板导入"
+                        Click="ImportWindowButton_Click"
+                        Margin="0,0,5,0">
+                  <Image Source="{StaticResource ImportIcon}"
+                         Stretch="UniformToFill" />
+                </Button>
+                <Button x:Name="SaveWindowButton"
+                        Background="White"
+                        Click="SaveWindowButton_Click"
+                        ToolTip="保存至本地路径点"
+                        Margin="0,0,5,0">
+                  <Image Source="{StaticResource SaveIcon}"
+                         Stretch="UniformToFill" />
+                </Button>
                 <Button x:Name="ShareWindowButton"
                         Background="White"
                         Click="ShareWindowButton_Click"
+                        ToolTip="保存至本地路径点"
                         Margin="0,0,5,0">
-                  <Image Source="{StaticResource ShardIcon}"
+                  <Image Source="{StaticResource ShareIcon}"
                          Stretch="UniformToFill" />
                 </Button>
                 <Button x:Name="CloseWindowButton"
@@ -65,22 +77,24 @@
                 </Button>
               </StackPanel>
               <Grid DockPanel.Dock="Left"
-                    Background="Transparent"
-                    MouseMove="Grid_MouseMove"
-                    TouchMove="Grid_TouchMove"
-                    MouseLeftButtonDown="Grid_MouseLeftButtonDown"
-                    MouseLeftButtonUp="Grid_MouseLeftButtonUp"
-                    TouchDown="Grid_TouchDown"
-                    TouchUp="Grid_TouchUp">
-         
+                    Background="Transparent">
+                <TextBlock x:Name="WorldPosOutput"
+                           Foreground="White"
+                           Background="Transparent"
+                           FontSize="25"
+                           Text="Possda133"
+                           Margin="16,0"
+                           VerticalAlignment="Stretch" />
                 <TextBox x:Name="WorldPosInput"
+                         Visibility="Hidden"
                          Foreground="White"
                          Background="Transparent"
-                         FontSize="18"
+                         FontSize="25"
                          Margin="8,0"
                          VerticalAlignment="Stretch"
                          TextAlignment="Left"
                          Text="Input"
+                         ToolTip="当前路径点,可复制"
                          TextWrapping="Wrap"></TextBox>
               </Grid>
             </DockPanel>

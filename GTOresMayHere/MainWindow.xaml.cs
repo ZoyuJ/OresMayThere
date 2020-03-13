@@ -48,20 +48,46 @@ namespace GTOresMayHere {
         HotkeyManager.Current.AddOrReplace("GTONextPoint", NextPointKey, NextPointKeyFrontKey1 | NextPointKeyFrontKey2, NextPointEvent);
       }
       FillPointsSaveToPath(_CLAConfigs);
+      //FillAttachProcess(_CLAConfigs);
+      //Loaded += (sender, args) => {
+      //  if (AttachPID > 0) {
+      //    AttachedProcess = Process.GetProcessById(AttachPID);
+      //    AttachedWindow = AttachedProcess.MainWindowHandle;
+      //  }
+      //  if (AttachProcessName != null && AttachedProcess == null) {
+      //    //var Processes = Process.GetProcessesByName(AttachProcessName);
+      //    //foreach (var item in Processes) {
+      //    //  if (item.MainWindowHandle != IntPtr.Zero) {
+      //    //    AttachedProcess = item;
+      //    //    AttachedWindow = AttachedProcess.MainWindowHandle;
+      //    //    break;
+      //    //  }
+      //    //}
+      //    AttachedWindow = Kits.FindWindowHandle(IntPtr.Zero, IntPtr.Zero, null, AttachProcessName);
+      //  }
+      //  if (AttachedWindow != IntPtr.Zero) {
+      //    var AWRect = Kits.GetWindowRect(AttachedWindow);
+      //    Debug.WriteLine(AWRect);
+      //    //this.Top = AWRect.Top;
+      //    //this.Left =AWRect.Right AWRect.Left
+      //  }
+      //};
+
 
 
     }
 
 
 
-
+    public IndexDetail? CurrentDetail { get; set; }
     private void NextPoint() {
       if (CurrentGTIndex == null) { WorldPosOutput.Text = "设置起始坐标"; return; }
       CurrentGTIndex = CurrentGTIndex.Value.GTChunkIndexTranslateOne(CurrentDirection);
-      var IsDetected = !UserConfig.IsPointDetected(CurrentGTIndex.Value, out var Detail) ;
-      DisplayIndexMessage(Detail);
-      if (IsDetected) { }
-      else UserConfig.PointDetected(Detail);
+      var IsDetected = IsPointDetected(CurrentGTIndex.Value, out var _CurrentDetail);
+      DisplayIndexMessage(_CurrentDetail);
+      if (IsDetected) {}
+      else UserConfig.PointDetected(_CurrentDetail);
+      CurrentDetail = new IndexDetail?(_CurrentDetail);
     }
 
     private void DisplayIndexMessage(in IndexDetail Detail) {
@@ -76,8 +102,12 @@ namespace GTOresMayHere {
 
     #region TitleReact
 
-    private void SaveWindowButton_Click(object sender,RoutedEventArgs e) {
+    private void ShareWindowButton_Click(object sender, RoutedEventArgs e) {
+      var ShareWindow = new ShareTo(CurrentDetail);
+      ShareWindow.Owner = Application.Current.MainWindow;
+      if (ShareWindow.ShowDialog() ?? false) {
 
+      }
     }
 
     private void ChangeDirWindowButton_Click(object sender, RoutedEventArgs e) {
@@ -130,23 +160,26 @@ namespace GTOresMayHere {
           WorldPosOutput.Text = "无效坐标"; return;
         }
         try {
-          InitWorldIndex = new Vector(Convert.ToInt64(PosStringArray[0]), Convert.ToInt64(PosStringArray[1]));
+          InitWorldIndex = new Vector(Convert.ToInt32(PosStringArray[0]), Convert.ToInt32(PosStringArray[1]));
           CurrentGTIndex = InitGTIndex = InitWorldIndex.WorldXZToGTChunkIndex();
           IsNeedToCheckOutMapOrigin = true;
           WorldPosInput.Visibility = Visibility.Hidden;
           WorldPosOutput.Visibility = Visibility.Visible;
+          //WorldPosOutput.Text = CurrentWorldIndex.ToString();
+          var IsDetected = !UserConfig.IsPointDetected(CurrentGTIndex.Value, out var _CurrentDetail);
+          DisplayIndexMessage(_CurrentDetail);
+          if (IsDetected) {  }
+          else UserConfig.PointDetected(_CurrentDetail);
+          CurrentDetail = new IndexDetail?(_CurrentDetail);
         }
         catch (Exception) {
-
           WorldPosOutput.Text = "无效坐标"; return;
         }
 
       }
 
     }
-    private void SettingWindowButton_Click(object sender, RoutedEventArgs e) {
 
-    }
     private void CloseWindowButton_Click(object sender, RoutedEventArgs e) {
       this.Close();
     }

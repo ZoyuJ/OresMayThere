@@ -127,10 +127,15 @@
     <Resource Include="Resources\Tilda_Icons_19ad_progress.png" />
     <Resource Include="Resources\Tilda_Icons_33_interior_engineering.png" />
     <Resource Include="Resources\Tilda_Icons_43_logistics_list.png" />
+    <Resource Include="Resources\Tilda_Icons_43_logistics_package.png" />
     <Resource Include="Resources\Tilda_Icons_43_logistics_transfer.png" />
+    <Resource Include="Resources\Tilda_Icons_43_logistics_unpackage.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="OreType.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Tilda_Icons_16cf_location.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

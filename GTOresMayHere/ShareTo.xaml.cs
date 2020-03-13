@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using Newtonsoft.Json;
 
 namespace GTOresMayHere {
   /// <summary>
@@ -19,19 +20,84 @@ namespace GTOresMayHere {
   public partial class ShareTo : Window {
     public ShareTo() {
       InitializeComponent();
+      Loaded += (sender, args) => {
+        //DialogResult = true;
+        //WorldPosOutput.GotFocus += (sender1, args1) => { WorldPosInput.SelectAll(); };
+      };
     }
+
+    public ShareTo(IndexDetail? Detail) : this() {
+      CurrentLocalDetail = Detail;
+      if (CurrentLocalDetail != null) {
+        WorldPosInput.Visibility = Visibility.Visible;
+        WorldPosOutput.Visibility = Visibility.Hidden;
+        WorldPosInput.Text = $"{CurrentLocalDetail.Value.Index.ToString()} is {CurrentLocalDetail.Value.OreType}";
+      }
+    }
+
+
+    public object DialogReturn { get; private set; }
+    public IndexDetail? CurrentLocalDetail { get; set; }
 
     #region TitleReact
+    private void SaveWindowButton_Click(object sender, RoutedEventArgs e) {
+      if (CurrentLocalDetail != null) {
+        var WPos = CurrentLocalDetail.Value.Index.GTChunkIndexToMCWorldXZ();
+        ExtenWayPoint EWPoint = new ExtenWayPoint(CurrentLocalDetail.Value.OreType, WPos.X, WPos.Z);
+        using (var sw = new StreamWriter(File.Create(Path.Combine(UserConfig.GameBuiltinMapWayPointsDirectory, EWPoint.WayPointFileName())), new UTF8Encoding(false))) {
+          sw.Write(JsonConvert.SerializeObject(EWPoint));
+        }
+        DialogResult = true;
+        this.Close();
+      }
+    }
+    private void ImportWindowButton_Click(object sender, RoutedEventArgs e) {
+      if (GetDataFromClipboard(out var Detail)) {
+        CurrentLocalDetail = Detail;
+        WorldPosInput.Visibility = Visibility.Hidden;
+        WorldPosOutput.Visibility = Visibility.Visible;
+        WorldPosOutput.Text = $"{Detail.Index.ToString()} is {Detail.OreType}";
+      }
+
+    }
     private void ShareWindowButton_Click(object sender, RoutedEventArgs e) {
-
+      int Len = WorldPosInput.Text.IndexOf(" is ");
+      if (Len < 0) {
+        DialogResult = false;
+        MessageBox.Show("数据结构不完整");
+        this.Close();
+        return;
+      }
+      Len += " is ".Length;
+      var OreType = WorldPosInput.Text.Substring(Len, WorldPosInput.Text.Length - Len);
+      CurrentLocalDetail = new IndexDetail() { Index = CurrentLocalDetail.Value.Index, Detected = CurrentLocalDetail.Value.Detected, OreType = OreType };
+      var SharedData = Convert.ToBase64String(new UTF8Encoding(false).GetBytes(JsonConvert.SerializeObject(CurrentLocalDetail.Value)));
+      Clipboard.SetText(SharedData);
     }
-    private void SettingWindowButton_Click(object sender, RoutedEventArgs e) {
 
+    bool GetDataFromClipboard(out IndexDetail Detail) {
+      Detail = IndexDetail.None;
+      string PackedData = null;
+      try {
+        PackedData = Clipboard.GetText();
+      }
+      catch (Exception) {
+        return false;
+      }
+      if (PackedData == null || PackedData.Length == 0) return false;
+
+      try {
+        Detail = JsonConvert.DeserializeObject<IndexDetail>(new UTF8Encoding(false).GetString(Convert.FromBase64String(PackedData)));
+        return true;
+      }
+      catch (Exception) {
+        return false;
+      }
     }
+
     private void CloseWindowButton_Click(object sender, RoutedEventArgs e) {
       this.Close();
     }
-    public (object, bool) DialogReturn { get; private set; }
     private void Grid_TouchMove(object sender, TouchEventArgs e) {
       if (RestoreIfMove) {
         RestoreIfMove = false;
@@ -104,5 +170,7 @@ namespace GTOresMayHere {
       RestoreIfMove = false;
     }
     #endregion
+
+
   }
 }

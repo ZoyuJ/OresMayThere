@@ -4,15 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using u64 = System.Int64;
 using static GTOresMayHere.WorldInfo;
+using Newtonsoft.Json;
 
 
 namespace GTOresMayHere {
   [Serializable]
+  [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
   public struct Vector {
-    public u64 X, Z;
-    public Vector(u64 _X, u64 _Z) { X = _X; Z = _Z; }
+    [JsonProperty(PropertyName ="1")]
+    public int X { get; set; }
+    [JsonProperty(PropertyName = "2")]
+    public int Z { get; set; }
+    public Vector(int _X, int _Z) { X = _X; Z = _Z; }
 
     public override bool Equals(object obj) {
       return X == ((Vector)obj).X && Z == ((Vector)obj).Z;
@@ -52,39 +56,44 @@ namespace GTOresMayHere {
 
     public static Vector operator +(in Vector L, in Vector R) => new Vector(L.X + R.X, L.Z + R.Z);
     public static Vector operator -(in Vector L, in Vector R) => new Vector(L.X - R.X, L.Z - R.Z);
-    public static Vector operator *(in Vector L, in u64 R) => new Vector(L.X * R, L.Z * R);
+    public static Vector operator *(in Vector L, in int R) => new Vector(L.X * R, L.Z * R);
     public static Vector operator *(in Vector L, in Vector R) => new Vector(L.X * R.X, L.Z * R.Z);
-    public static Vector operator /(in Vector L, in u64 R) => new Vector(L.X / R, L.Z / R);
+    public static Vector operator /(in Vector L, in int R) => new Vector(L.X / R, L.Z / R);
     public static Vector operator /(in Vector L, in Vector R) => new Vector(L.X / R.X, L.Z / R.Z);
 
     public static bool operator ==(in Vector L, in Vector R) => L.X == R.X && L.Z == R.Z;
     public static bool operator !=(in Vector L, in Vector R) => L.X != R.X || L.Z != R.Z;
 
-    public u64 XAndZDistanceTotal(Vector R) => Math.Abs(R.X - X) + Math.Abs(R.Z - Z);
+    public int XAndZDistanceTotal(Vector R) => Math.Abs(R.X - X) + Math.Abs(R.Z - Z);
 
   }
 
   [Serializable]
+  [JsonObject(MemberSerialization =MemberSerialization.OptIn)]
   public struct IndexDetail {
+    [JsonProperty(PropertyName ="1")]
     public Vector Index { get; set; }
-    public int OreType { get; set; }
-
+    [JsonProperty(PropertyName = "2")]
+    public string OreType { get; set; }
+    [JsonIgnore]
     public bool Detected { get; set; }
 
-    public static IndexDetail None = new IndexDetail() { Index = new Vector(), OreType = 0, Detected = false };
-    public static IndexDetail UndetectedPoint(in Vector Index) => new IndexDetail() { Index = Index, OreType = 0, Detected = false };
-    public static IndexDetail FromFileNameParts(string[] Parts,bool Detected= true) {
+    public static IndexDetail None = new IndexDetail() { Index = new Vector(), OreType = "Nothing", Detected = false };
+    public static IndexDetail UndetectedPoint(in Vector Index) => new IndexDetail() { Index = Index, OreType = "Nothing", Detected = false };
+    public static IndexDetail FromFileNameParts(string[] Parts, bool Detected = true) {
       var New = new IndexDetail();
-      New.Index = new Vector(Convert.ToInt64(Parts[0]), Convert.ToInt64(Parts[1]));
-      New.OreType = Convert.ToInt32(Parts[2]);
+      New.Index = new Vector(Convert.ToInt32(Parts[0]), Convert.ToInt32(Parts[1]));
+      New.OreType = Parts[2];
       New.Detected = Detected;
       return New;
     }
+
+    
   }
 
   public static class WorldInfo {
-    public const u64 MCChunkLen = 16;
-    public const u64 GTChunkLen = MCChunkLen * 3;
+    public const int MCChunkLen = 16;
+    public const int GTChunkLen = MCChunkLen * 3;
     public static readonly Vector SecondArea = new Vector(-8, 24);
     public static readonly Vector FirstArea = new Vector(24, 24);
     public static readonly Vector ThridArea = new Vector(-8, -8);
@@ -191,7 +200,7 @@ namespace GTOresMayHere {
       sr.Close();
     }
 
-    public static void Sort<T>(this List<T> This, Func<T, T, u64> Compare) {
+    public static void Sort<T>(this List<T> This, Func<T, T, int> Compare) {
       T Temp = default;
       for (int i = 0; i < This.Count - 1; i++) {
         for (int j = 0; j < This.Count - 1 - i; j++) {
@@ -236,5 +245,41 @@ namespace GTOresMayHere {
       }
       return false;
     }
+  }
+
+  [Serializable]
+  public class ExtenWayPoint {
+    public ExtenWayPoint(string Name, int X, int Z) {
+      name = Name;
+      x = X;
+      z = Z;
+      AssembleId();
+      RandomColor();
+    }
+    void AssembleId() {
+      id = $"{name}_{x},{y},{z}";
+    }
+    private readonly static Random ColorGenRandom = new Random();
+    void RandomColor() {
+      r = ColorGenRandom.Next(0, 256);
+      g = ColorGenRandom.Next(0, 256);
+      b = ColorGenRandom.Next(0, 256);
+    }
+    public string id { get; set; }
+    public string name { get; set; }
+    public string icon { get; set; } = "waypoint-normal.png";
+    public int x { get; set; }
+    public int y { get; set; } = 60;
+    public int z { get; set; }
+    public int r { get; set; }
+    public int g { get; set; }
+    public int b { get; set; }
+    public bool enable { get; set; } = true;
+    public string type { get; set; } = "Normal";
+    public string origin { get; set; } = "JourneyMap";
+    public int[] dimensions { get; set; } = new int[] { 6 };
+
+    public string WayPointFileName() { return $"{id}.waypoint"; }
+
   }
 }

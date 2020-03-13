@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -117,6 +119,10 @@ namespace GTOresMayHere {
         SelfMapWayPointsDirectory = Val1;
       }
       if (!Directory.Exists(SelfMapWayPointsDirectory)) Directory.CreateDirectory(SelfMapWayPointsDirectory);
+      if (Args.TryGetValue("MapSave", out var Val2)) {
+        GameBuiltinMapWayPointsDirectory = Val2;
+      }
+      if (!Directory.Exists(GameBuiltinMapWayPointsDirectory)) { MessageBox.Show($"MapSave参数 {Val2} 不存在"); Application.Current.Shutdown(); }
     }
     public static string AssembleGTIndexToFullFileName(in IndexDetail Detail) {
       return Detail.Index.ToShortestString() + "," + Detail.OreType.ToString() + ".gtp";
@@ -176,6 +182,20 @@ namespace GTOresMayHere {
         return;
       }
       File.Create(Path.Combine(SelfMapWayPointsDirectory, AssembleGTIndexToFullFileName(Detail)), 1024, FileOptions.SequentialScan).Close();
+    }
+
+    public static int AttachPID;
+    public static string AttachProcessName;
+    public static Process AttachedProcess;
+    public static IntPtr AttachedWindow;
+    public static void FillAttachProcess(in Dictionary<string, string> Args) {
+      if (Args.TryGetValue("APid", out var Val1)) {
+        AttachPID = Convert.ToInt32(Val1);
+      }
+      else if (Args.TryGetValue("APName", out var Val2)) {
+        AttachProcessName = Val2;
+      }
+
     }
 
 

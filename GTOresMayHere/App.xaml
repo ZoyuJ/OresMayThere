@@ -14,8 +14,14 @@
                  UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_33_interior_engineering.png" />
     <BitmapImage x:Key="TaskIcon"
                  UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_43_logistics_list.png" />
-    <BitmapImage x:Key="ShardIcon"
-                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_43_logistics_transfer.png" />
+    <BitmapImage x:Key="DataTransIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_43_logistics_transfer.png" />   
+    <BitmapImage x:Key="ImportIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_43_logistics_unpackage.png" />
+    <BitmapImage x:Key="SaveIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_43_logistics_package.png" />
+    <BitmapImage x:Key="ShareIcon"
+                 UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_16cf_location.png" />
     <Path x:Key="DirectionIsOriginVectors"
           Width="20"
           Fill="Red"

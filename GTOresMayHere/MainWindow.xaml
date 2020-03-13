@@ -8,13 +8,16 @@
         Title="MainWindow"
         Height="30"
         Width="500"
+        MaxHeight="30"
+        MinWidth="400"
         ClipToBounds="False"
         BorderThickness="0"
         WindowStyle="None"
         WindowStartupLocation="Manual"
         SnapsToDevicePixels="True"
         ResizeMode="NoResize"
-        VerticalAlignment="Top">
+        VerticalAlignment="Top"
+        Topmost="True">
   <Window.Resources>
     <local:ValueCorrectToBrush x:Key="ValueCorrectToBrush" />
   </Window.Resources>
@@ -54,9 +57,9 @@
               <Button x:Name="ShareWindowButton"
                       Background="White"
                       ToolTip="保存当前点"
-                      Click="SaveWindowButton_Click"
+                      Click="ShareWindowButton_Click"
                       Margin="0,0,5,0">
-                <Image Source="{StaticResource ShardIcon}"
+                <Image Source="{StaticResource DataTransIcon}"
                        Stretch="UniformToFill" />
               </Button>
               <Button x:Name="CloseWindowButton"
