@@ -338,3 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/GTOresMayHere/Resources/wpffx
+/GTOresMayHere/Resources/ShaderTools.Editor.VisualStudio.vsix
+/GTOresMayHere/Resources/wpffx.zip

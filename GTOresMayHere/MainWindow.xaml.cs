@@ -72,7 +72,9 @@ namespace GTOresMayHere {
       //    //this.Left =AWRect.Right AWRect.Left
       //  }
       //};
-
+      Loaded += (sender, args) => {
+        new TestSomeWindow().Show();
+      };
 
 
     }

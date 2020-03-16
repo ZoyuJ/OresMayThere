@@ -67,7 +67,11 @@
     <Compile Include="AllPoints.xaml.cs">
       <DependentUpon>AllPoints.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CusShaderEffect.cs" />
     <Compile Include="Kits.cs" />
+    <Compile Include="TestSomeWindow.xaml.cs">
+      <DependentUpon>TestSomeWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="WorldInfo.cs" />
     <Compile Include="ShareTo.xaml.cs">
       <DependentUpon>ShareTo.xaml</DependentUpon>
@@ -90,6 +94,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="ShareTo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TestSomeWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -117,6 +125,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="Resources\test1.ps" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -136,6 +145,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Tilda_Icons_16cf_location.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TestSome\TestSome.csproj">
+      <Project>{937064da-6839-407e-8b7b-fde81cf3dc53}</Project>
+      <Name>TestSome</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\test1.hlsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

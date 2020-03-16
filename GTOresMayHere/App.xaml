@@ -22,6 +22,9 @@
                  UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_43_logistics_package.png" />
     <BitmapImage x:Key="ShareIcon"
                  UriSource="/GTOresMayHere;component/Resources/Tilda_Icons_16cf_location.png" />
+    <ImageBrush x:Key="ShareBrush"
+                ImageSource="{StaticResource ShareIcon}"/>
+    
     <Path x:Key="DirectionIsOriginVectors"
           Width="20"
           Fill="Red"
